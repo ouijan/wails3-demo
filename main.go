@@ -2,12 +2,14 @@ package main
 
 import (
 	"embed"
+	_ "embed" // Required for the 'embed' package to work
 	"log"
 	"runtime"
 	"time"
 
+	"github.com/ouijan/wails3-demo/src/icons"
 	"github.com/wailsapp/wails/v3/pkg/application"
-	"github.com/wailsapp/wails/v3/pkg/icons"
+	"github.com/wailsapp/wails/v3/pkg/events"
 )
 
 // Wails uses Go's `embed` package to embed the frontend files into the binary.
@@ -51,31 +53,36 @@ func main() {
 	mainWindow := app.NewWebviewWindowWithOptions(application.WebviewWindowOptions{
 		Width:         400,
 		Height:        600,
-		Frameless:     true,
+		Frameless:     false,
 		AlwaysOnTop:   true,
-		DisableResize: true,
+		DisableResize: false,
 		Hidden:        true,
 		Windows: application.WindowsWindow{
 			HiddenOnTaskbar: true,
 		},
+		MinimiseButtonState: application.ButtonHidden,
+		MaximiseButtonState: application.ButtonHidden,
+		CloseButtonState:    application.ButtonEnabled,
 
-		// Mac: application.MacWindow{
-
-		// InvisibleTitleBarHeight: 50,
-		// Backdrop:                application.MacBackdropTranslucent,
-		// TitleBar: application.MacTitleBarHiddenInset,
-		// },
+		Mac: application.MacWindow{
+			InvisibleTitleBarHeight: 50,
+			Backdrop:                application.MacBackdropTranslucent,
+			TitleBar:                application.MacTitleBarHiddenInset,
+		},
 		// BackgroundColour: application.NewRGB(27, 38, 54),
 		// URL:              "/",
+	})
+	// Disable window closing by canceling the event
+	mainWindow.RegisterHook(events.Common.WindowClosing, func(e *application.WindowEvent) {
+		e.Cancel()
+		mainWindow.Hide()
 	})
 
 	systemTray := app.NewSystemTray()
 
-	// Support for template icons on macOS
 	if runtime.GOOS == "darwin" {
 		systemTray.SetTemplateIcon(icons.SystrayMacTemplate)
 	} else {
-		// Support for light/dark mode icons
 		systemTray.SetDarkModeIcon(icons.SystrayDark)
 		systemTray.SetIcon(icons.SystrayLight)
 	}
@@ -96,11 +103,13 @@ func main() {
 		app.Quit()
 	})
 	systemTray.SetMenu(myMenu)
+	// systemTray.SetLabel("Wails3 Demo")
+	// systemTray.SetIcon(appIcon) // Doesn't work
 
 	// This will center the window to the systray icon with a 5px offset
 	// It will automatically be shown when the systray icon is clicked
 	// and hidden when the window loses focus
-	systemTray.AttachWindow(mainWindow).WindowOffset(5)
+	// systemTray.AttachWindow(mainWindow).WindowOffset(5)
 
 	// Create a goroutine that emits an event containing the current time every second.
 	// The frontend can listen to this event and update the UI accordingly.

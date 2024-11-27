@@ -1,4 +1,4 @@
-module changeme
+module github.com/ouijan/wails3-demo
 
 go 1.22.4
 
