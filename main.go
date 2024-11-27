@@ -7,7 +7,8 @@ import (
 	"runtime"
 	"time"
 
-	"github.com/ouijan/wails3-demo/src/icons"
+	"github.com/ouijan/wails3-demo/backend/app"
+	"github.com/ouijan/wails3-demo/backend/icons"
 	"github.com/wailsapp/wails/v3/pkg/application"
 	"github.com/wailsapp/wails/v3/pkg/events"
 )
@@ -34,7 +35,9 @@ func main() {
 		Name:        "wails3-demo",
 		Description: "A demo of using raw HTML & CSS",
 		Services: []application.Service{
-			application.NewService(&GreetService{}),
+			application.NewService(&app.GreetService{}, application.ServiceOptions{
+				Route: "/backend/app",
+			}),
 		},
 		Assets: application.AssetOptions{
 			Handler: application.AssetFileServerFS(assets),

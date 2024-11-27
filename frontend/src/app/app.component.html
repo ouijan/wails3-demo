@@ -1,0 +1,11 @@
+<h1>Hello, {{ title }}</h1>
+
+@if (greeting()) {
+<div>{{ greeting() }}</div>
+}
+<input type="text" [formControl]="nameControl" placeholder="Enter your name" />
+<button (click)="submit()">Submit</button>
+
+<div>{{ timeDisplay() }}</div>
+
+<router-outlet />
